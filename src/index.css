@@ -52,6 +52,15 @@ body::before {
   border-right:1px solid var(--border);
   display:flex; flex-direction:column;
   z-index:100;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.sidebar.closed {
+  transform: translateX(-100%);
+  box-shadow: none;
+}
+.sidebar.open {
+  transform: translateX(0);
 }
 .logo {
   padding:26px 22px 22px;
@@ -116,21 +125,58 @@ body::before {
 .user-role { font-size:11px; color:var(--text3); font-family:var(--body-font); }
 
 /* ─── MAIN ─── */
-.main { margin-left:252px; min-height:100vh; position:relative; z-index:1; }
+.main { 
+  margin-left:252px; 
+  min-height:100vh; 
+  position:relative; 
+  z-index:1; 
+  transition: margin-left 0.3s ease;
+}
+.main.sidebar-closed {
+  margin-left: 0;
+}
+.main.sidebar-open {
+  margin-left: 252px;
+}
 
 /* ─── TOPBAR ─── */
 .topbar {
   position:sticky; top:0; z-index:50;
-  background:rgba(6,10,18,0.88);
-  backdrop-filter:blur(20px);
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
   padding:15px 30px;
   display:flex; align-items:center; gap:14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.sidebar-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.sidebar-toggle:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--border2);
+}
+.sidebar-toggle svg {
+  width: 18px;
+  height: 18px;
 }
 .page-title {
   font-family:var(--heading-font);
   font-size:22px; font-weight:700; flex:1;
   letter-spacing:-0.3px; font-style:italic;
+  transition: font-size 0.3s ease;
 }
 .topbar-actions { display:flex; gap:9px; align-items:center; }
 
@@ -487,6 +533,11 @@ td { padding:14px 20px; font-size:13px; vertical-align:middle; font-family:var(-
 .divider { height:1px; background:var(--border); margin:20px 0; }
 .mono { font-family:var(--mono-font); }
 
+/* Show toggle button on desktop */
+@media(min-width: 901px) {
+  .sidebar-toggle { display: flex; }
+}
+
 @media(max-width:1100px) {
   .stats-row { grid-template-columns:repeat(2,1fr); }
   .safety-grid { grid-template-columns:repeat(2,1fr); }
@@ -494,33 +545,45 @@ td { padding:14px 20px; font-size:13px; vertical-align:middle; font-family:var(-
 }
 
 @media(max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+  
   .sidebar { 
-    position: fixed; bottom: 0; left: 0; right: 0; top: auto; width: 100%; height: 75px; /* taller for touch */
+    position: fixed; bottom: 0; left: 0; right: 0; top: auto; width: 100%; height: 70px;
     flex-direction: row; border-right: none; border-top: 1px solid var(--border);
     overflow-x: auto; overflow-y: hidden; z-index: 100;
+    transform: translateX(0) !important;
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+  }
+  .sidebar.closed {
+    transform: translateX(0) !important;
+  }
+  .sidebar.open {
+    transform: translateX(0) !important;
   }
   .logo, .sidebar-footer, .nav-section { display: none; }
-  .nav { display: flex; flex-direction: row; gap: 8px; padding: 6px 10px; flex: 1; align-items: center; justify-content: space-around; overflow-y: hidden; overflow-x: auto; }
-  /* hide labels for some nav items to save space, or stack them */
+  .nav { display: flex; flex-direction: row; gap: 6px; padding: 8px 12px; flex: 1; align-items: center; justify-content: space-around; overflow-y: hidden; overflow-x: auto; }
   .nav-item { 
-    flex-direction: column; padding: 8px 4px; font-size: 10px; 
-    justify-content: center; min-width: 65px; text-align: center; gap: 4px;
+    flex-direction: column; padding: 6px 8px; font-size: 10px; 
+    justify-content: center; min-width: 60px; text-align: center; gap: 3px;
     border-radius: 8px; 
   }
   .nav-item.active::before { 
     top: 0; left: 50%; transform: translateX(-50%); 
-    width: 30px; height: 3px; border-radius: 0 0 3px 3px; 
+    width: 28px; height: 2px; border-radius: 0 0 2px 2px; 
   }
-  .nav-item svg { margin-bottom: 2px; width: 22px; height: 22px; }
-  .nav-badge { position: absolute; top: 2px; right: 8px; font-size: 9px; padding: 1px 4px; }
+  .nav-item svg { width: 20px; height: 20px; }
+  .nav-badge { position: absolute; top: 0px; right: 6px; font-size: 8px; padding: 2px 3px; }
   
-  .main { margin-left: 0; padding-bottom: 85px; } /* clearance for bottom nav */
+  .main { margin-left: 0; padding-bottom: 80px; }
+  .main.sidebar-closed { margin-left: 0; }
+  .main.sidebar-open { margin-left: 0; }
   
-  .topbar { flex-wrap: wrap; padding: 12px 20px; }
-  .page-title { width: 100%; margin-bottom: 12px; }
-  .topbar-actions { width: 100%; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-  .search-box { flex: 1; min-width: 200px; }
+  .topbar { flex-wrap: wrap; padding: 12px 16px; gap: 10px; }
+  .page-title { width: 100%; margin-bottom: 8px; font-size: 18px; }
+  .topbar-actions { width: 100%; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .search-box { flex: 1; min-width: 150px; }
   .search-box input { width: 100%; }
+  .btn { padding: 8px 14px; font-size: 12px; }
 }
 
 @media(max-width: 600px) {

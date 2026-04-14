@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 
 const initialDrivers = [
-  { id:'DRV-0087', name:'Rajesh Kumar', initials:'RK', bg:'var(--accent2-dim)', fg:'var(--accent2)', license:'TN01 20210022650', category:'HMV', exp:'12 yrs', status:'active', score:96, noc:'none', dob:'1988-03-14', phone:'+91 98765 43210', expiry:'2041-07-01', rto:'Chennai RTO', cat:'HMV, HGMV', currExp:'3y 2m', km:'4,80,000 km' },
-  { id:'DRV-0042', name:'Priya Nair', initials:'PN', bg:'var(--accent-dim)', fg:'var(--accent)', license:'KL04 20220018874', category:'LMV', exp:'7 yrs', status:'active', score:99, noc:'approved', dob:'1992-06-22', phone:'+91 94456 77821', expiry:'2042-03-14', rto:'Thiruvananthapuram RTO', cat:'LMV', currExp:'1y 8m', km:'1,20,000 km' },
-  { id:'DRV-0019', name:'Vikram Singh', initials:'VS', bg:'var(--danger-dim)', fg:'var(--danger)', license:'MH02 20180034521', category:'HMV', exp:'15 yrs', status:'flagged', score:72, noc:'pending', dob:'1984-09-03', phone:'+91 91234 56789', expiry:'2038-12-10', rto:'Mumbai RTO', cat:'HMV, HGMV', currExp:'4y 0m', km:'7,20,000 km' },
-  { id:'DRV-0033', name:'Anand Rajan', initials:'AR', bg:'var(--accent3-dim)', fg:'var(--accent3)', license:'TN38 20190045231', category:'HMV', exp:'9 yrs', status:'active', score:88, noc:'rejected', dob:'1990-11-15', phone:'+91 87654 32198', expiry:'2026-04-25', rto:'Chennai RTO', cat:'HMV', currExp:'2y 5m', km:'3,10,000 km' },
-  { id:'DRV-0055', name:'Sunita Pillai', initials:'SP', bg:'var(--accent-dim)', fg:'var(--accent)', license:'KL09 20170031182', category:'LMV', exp:'11 yrs', status:'active', score:91, noc:'none', dob:'1987-02-28', phone:'+91 99887 76655', expiry:'2026-05-09', rto:'Ernakulam RTO', cat:'LMV', currExp:'2y 1m', km:'2,40,000 km' },
-  { id:'DRV-0061', name:'Meena Devi', initials:'MD', bg:'var(--purple-dim)', fg:'var(--purple)', license:'TN05 20200028831', category:'LMV', exp:'6 yrs', status:'active', score:94, noc:'pending', dob:'1995-07-10', phone:'+91 76543 21098', expiry:'2040-08-18', rto:'Coimbatore RTO', cat:'LMV', currExp:'1y 3m', km:'95,000 km' },
+  { id:'DRV-0087', name:'Rajesh Kumar', initials:'RK', bg:'var(--accent2-dim)', fg:'var(--accent2)', license:'TN01 20210022650', category:'HMV', exp:'12 yrs', status:'active', score:96, noc:'none', dob:'1988-03-14', phone:'+91 98765 43210', expiry:'2041-07-01', rto:'Chennai RTO', cat:'HMV, HGMV', currExp:'3y 2m', km:'4,80,000 km', accidents:2, totalCases:5, casePending:1 },
+  { id:'DRV-0042', name:'Priya Nair', initials:'PN', bg:'var(--accent-dim)', fg:'var(--accent)', license:'KL04 20220018874', category:'LMV', exp:'7 yrs', status:'active', score:99, noc:'approved', dob:'1992-06-22', phone:'+91 94456 77821', expiry:'2042-03-14', rto:'Thiruvananthapuram RTO', cat:'LMV', currExp:'1y 8m', km:'1,20,000 km', accidents:0, totalCases:1, casePending:0 },
+  { id:'DRV-0019', name:'Vikram Singh', initials:'VS', bg:'var(--danger-dim)', fg:'var(--danger)', license:'MH02 20180034521', category:'HMV', exp:'15 yrs', status:'flagged', score:72, noc:'pending', dob:'1984-09-03', phone:'+91 91234 56789', expiry:'2038-12-10', rto:'Mumbai RTO', cat:'HMV, HGMV', currExp:'4y 0m', km:'7,20,000 km', accidents:5, totalCases:8, casePending:3 },
+  { id:'DRV-0033', name:'Anand Rajan', initials:'AR', bg:'var(--accent3-dim)', fg:'var(--accent3)', license:'TN38 20190045231', category:'HMV', exp:'9 yrs', status:'active', score:88, noc:'rejected', dob:'1990-11-15', phone:'+91 87654 32198', expiry:'2026-04-25', rto:'Chennai RTO', cat:'HMV', currExp:'2y 5m', km:'3,10,000 km', accidents:1, totalCases:3, casePending:1 },
+  { id:'DRV-0055', name:'Sunita Pillai', initials:'SP', bg:'var(--accent-dim)', fg:'var(--accent)', license:'KL09 20170031182', category:'LMV', exp:'11 yrs', status:'active', score:91, noc:'none', dob:'1987-02-28', phone:'+91 99887 76655', expiry:'2026-05-09', rto:'Ernakulam RTO', cat:'LMV', currExp:'2y 1m', km:'2,40,000 km', accidents:0, totalCases:2, casePending:0 },
+  { id:'DRV-0061', name:'Meena Devi', initials:'MD', bg:'var(--purple-dim)', fg:'var(--purple)', license:'TN05 20200028831', category:'LMV', exp:'6 yrs', status:'active', score:94, noc:'pending', dob:'1995-07-10', phone:'+91 76543 21098', expiry:'2040-08-18', rto:'Coimbatore RTO', cat:'LMV', currExp:'1y 3m', km:'95,000 km', accidents:1, totalCases:4, casePending:2 },
 ];
 
 const initialNocRequests = [
@@ -19,6 +19,7 @@ const initialNocRequests = [
 
 export default function App() {
   const [view, setView] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [toastMsg, setToastMsg] = useState(null);
   const [showToastTrigger, setShowToastTrigger] = useState(0);
 
@@ -88,7 +89,7 @@ export default function App() {
 
   return (
     <>
-      <aside className="sidebar">
+      <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="logo">
           <div className="logo-mark">Fleet<em>Axis</em></div>
           <div className="logo-sub">Driver Records System</div>
@@ -148,8 +149,11 @@ export default function App() {
         </div>
       </aside>
 
-      <main className="main">
-        {view === "dashboard" && <DashboardPage setAddModalOpen={setAddModalOpen} setView={setView} drivers={drivers} nocRequests={nocRequests} auditLog={auditLog} />}
+      <main className={`main ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} title={sidebarOpen ? "Close sidebar" : "Open sidebar"}>
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16" strokeWidth="2.5"/></svg>
+        </button>
+        {view === "dashboard" && <DashboardPage setAddModalOpen={setAddModalOpen} setView={setView} drivers={drivers} nocRequests={nocRequests} auditLog={auditLog} sidebarOpen={sidebarOpen} />}
         {view === "drivers" && <DriversPage showToast={showToast} setAddModalOpen={setAddModalOpen} setProfileModalDriver={setProfileModalDriver} drivers={drivers} setNewNocModalOpen={setNewNocModalOpen} setEditModalDriver={setEditModalDriver} deleteDriver={deleteDriver} />}
         {view === "noc" && <NOCPage showToast={showToast} setNewNocModalOpen={setNewNocModalOpen} setViewNocData={setViewNocData} nocRequests={nocRequests} drivers={drivers} updateNocStatus={updateNocStatus} />}
         {view === "licenses" && <LicensesPage showToast={showToast} drivers={drivers} />}
@@ -802,6 +806,15 @@ function ToggleRow({ title, desc, active, onClick }) {
 
 function ProfileModal({ driver, onClose }) {
   if (!driver) return null;
+  
+  // Calculate missing features
+  const missingFeatures = [];
+  if (!driver.address) missingFeatures.push('Address');
+  if (!driver.routeFrom || !driver.routeTo) missingFeatures.push('Route Information');
+  if (driver.accidents === undefined) missingFeatures.push('Accident History');
+  if (driver.totalCases === undefined) missingFeatures.push('Case Records');
+  if (!driver.currExp) missingFeatures.push('Current Employment Info');
+  
   return (
     <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal">
@@ -833,18 +846,30 @@ function ProfileModal({ driver, onClose }) {
           </div>
           <div className="section-head">Safety History</div>
           <div className="detail-grid">
-            <div><div className="detail-label">Total Incidents</div><div className="detail-value">0</div></div>
-            <div><div className="detail-label">Violations</div><div className="detail-value">2 (minor)</div></div>
-            <div><div className="detail-label">Last Training</div><div className="detail-value">Feb 2026</div></div>
-            <div><div className="detail-label">Certification</div><div className="detail-value" style={{color:'var(--accent)'}}>Defensive Driving ✓</div></div>
+            <div><div className="detail-label">Total Accidents</div><div className="detail-value" style={{color: driver.accidents > 0 ? 'var(--danger)' : 'var(--text)'}}>{driver.accidents || 0}</div></div>
+            <div><div className="detail-label">Total Cases</div><div className="detail-value" style={{color: driver.totalCases > 0 ? 'var(--accent3)' : 'var(--text)'}}>{driver.totalCases || 0}</div></div>
+            <div><div className="detail-label">Cases Pending</div><div className="detail-value" style={{color: driver.casePending > 0 ? 'var(--danger)' : 'var(--text)'}}>{driver.casePending || 0}</div></div>
+            <div><div className="detail-label">Safety Score</div><div className="detail-value" style={{color:'var(--accent)'}}>{driver.score} / 100</div></div>
           </div>
-          {(driver.casePending || driver.routeFrom || driver.routeTo) && (
+          {(driver.routeFrom || driver.routeTo) && (
             <>
-              <div className="section-head">Legal & Route Details</div>
+              <div className="section-head">Route Details</div>
               <div className="detail-grid">
-                <div><div className="detail-label">Case Pending</div><div className="detail-value">{driver.casePending || 'No'}</div></div>
                 <div><div className="detail-label">Route From</div><div className="detail-value">{driver.routeFrom || '-'}</div></div>
                 <div><div className="detail-label">Route To</div><div className="detail-value">{driver.routeTo || '-'}</div></div>
+              </div>
+            </>
+          )}
+          {missingFeatures.length > 0 && (
+            <>
+              <div className="section-head" style={{color:'var(--accent3)'}}>What's Missing</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {missingFeatures.map((feature, idx) => (
+                  <div key={idx} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',background:'var(--surface2)',borderRadius:'9px',borderLeft:'3px solid var(--accent3)'}}>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" style={{color:'var(--accent3)',flexShrink:0}}><path d="M12 9v2m0 4v2m-6-4a9 9 0 1118 0 9 9 0 01-18 0z" strokeWidth="2"/></svg>
+                    <span style={{fontSize:'13px',fontWeight:'500',color:'var(--text)'}}>{feature}</span>
+                  </div>
+                ))}
               </div>
             </>
           )}
@@ -855,7 +880,7 @@ function ProfileModal({ driver, onClose }) {
 }
 
 function AddDriverModal({ isOpen, onClose, showToast, addDriver, driversLength }) {
-  const [formData, setFormData] = useState({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', casePending: 'No', routeFrom: '', routeTo: '' });
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', accidents: 0, totalCases: 0, casePending: 0, routeFrom: '', routeTo: '' });
   
   if (!isOpen) return null;
 
@@ -873,9 +898,12 @@ function AddDriverModal({ isOpen, onClose, showToast, addDriver, driversLength }
       license: formData.license, category: formData.cat.split(' ')[0], exp: formData.exp ? `${formData.exp} yrs` : '0 yrs',
       status: 'active', score: 100, noc: 'none', dob: formData.dob || '1990-01-01', phone: formData.phone || 'N/A',
       expiry: formData.expiry || '2030-01-01', rto: formData.rto || 'TBA', cat: formData.cat, currExp: '0y 0m', km: formData.km ? `${formData.km} km` : '0 km',
-      casePending: formData.casePending, routeFrom: formData.routeFrom, routeTo: formData.routeTo
+      accidents: parseInt(formData.accidents) || 0,
+      totalCases: parseInt(formData.totalCases) || 0,
+      casePending: parseInt(formData.casePending) || 0,
+      routeFrom: formData.routeFrom, routeTo: formData.routeTo
     });
-    setFormData({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', casePending: 'No', routeFrom: '', routeTo: '' });
+    setFormData({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', accidents: 0, totalCases: 0, casePending: 0, routeFrom: '', routeTo: '' });
     onClose();
     showToast('Driver record saved successfully');
   };
@@ -912,9 +940,15 @@ function AddDriverModal({ isOpen, onClose, showToast, addDriver, driversLength }
               <div className="form-group"><label className="form-label">Total KM Driven</label><input name="km" value={formData.km} onChange={handleChange} className="form-input" /></div>
             </div>
           </div>
-          <div className="form-section"><div className="form-section-title">Legal & Route Details</div>
+          <div className="form-section"><div className="form-section-title">Safety & Legal Records</div>
             <div className="form-grid">
-              <div className="form-group"><label className="form-label">Case Pending</label><select name="casePending" value={formData.casePending} onChange={handleChange} className="form-select"><option>No</option><option>Yes</option></select></div>
+              <div className="form-group"><label className="form-label">Total Accidents</label><input name="accidents" value={formData.accidents} onChange={handleChange} className="form-input" type="number" min="0" /></div>
+              <div className="form-group"><label className="form-label">Total Cases</label><input name="totalCases" value={formData.totalCases} onChange={handleChange} className="form-input" type="number" min="0" /></div>
+              <div className="form-group"><label className="form-label">Cases Pending</label><input name="casePending" value={formData.casePending} onChange={handleChange} className="form-input" type="number" min="0" /></div>
+            </div>
+          </div>
+          <div className="form-section"><div className="form-section-title">Route Details</div>
+            <div className="form-grid">
               <div className="form-group"><label className="form-label">Route From</label><input name="routeFrom" value={formData.routeFrom} onChange={handleChange} className="form-input" placeholder="e.g. Chennai" /></div>
               <div className="form-group"><label className="form-label">Route To</label><input name="routeTo" value={formData.routeTo} onChange={handleChange} className="form-input" placeholder="e.g. Bangalore" /></div>
             </div>
@@ -930,7 +964,7 @@ function AddDriverModal({ isOpen, onClose, showToast, addDriver, driversLength }
 }
 
 function EditDriverModal({ driver, onClose, showToast, updateDriver }) {
-  const [formData, setFormData] = useState({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', casePending: 'No', routeFrom: '', routeTo: '' });
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', accidents: 0, totalCases: 0, casePending: 0, routeFrom: '', routeTo: '' });
 
   useEffect(() => {
     if (driver) {
@@ -948,7 +982,9 @@ function EditDriverModal({ driver, onClose, showToast, updateDriver }) {
         exp: parseInt(driver.exp) || 0,
         km: parseInt(driver.km?.replace(/[^\d]/g, '')) || 0,
         company: '',
-        casePending: driver.casePending || 'No',
+        accidents: driver.accidents || 0,
+        totalCases: driver.totalCases || 0,
+        casePending: driver.casePending || 0,
         routeFrom: driver.routeFrom || '',
         routeTo: driver.routeTo || ''
       });
@@ -967,7 +1003,10 @@ function EditDriverModal({ driver, onClose, showToast, updateDriver }) {
       license: formData.license, category: formData.cat.split(' ')[0], exp: formData.exp ? `${formData.exp} yrs` : '0 yrs',
       dob: formData.dob || '1990-01-01', phone: formData.phone || 'N/A',
       expiry: formData.expiry || '2030-01-01', rto: formData.rto || 'TBA', cat: formData.cat, km: formData.km ? `${formData.km} km` : '0 km',
-      casePending: formData.casePending, routeFrom: formData.routeFrom, routeTo: formData.routeTo
+      accidents: parseInt(formData.accidents) || 0,
+      totalCases: parseInt(formData.totalCases) || 0,
+      casePending: parseInt(formData.casePending) || 0,
+      routeFrom: formData.routeFrom, routeTo: formData.routeTo
     });
     onClose();
     showToast('Driver record updated successfully');
@@ -1005,9 +1044,15 @@ function EditDriverModal({ driver, onClose, showToast, updateDriver }) {
               <div className="form-group"><label className="form-label">Total KM Driven</label><input name="km" value={formData.km} onChange={handleChange} className="form-input" /></div>
             </div>
           </div>
-          <div className="form-section"><div className="form-section-title">Legal & Route Details</div>
+          <div className="form-section"><div className="form-section-title">Safety & Legal Records</div>
             <div className="form-grid">
-              <div className="form-group"><label className="form-label">Case Pending</label><select name="casePending" value={formData.casePending} onChange={handleChange} className="form-select"><option>No</option><option>Yes</option></select></div>
+              <div className="form-group"><label className="form-label">Total Accidents</label><input name="accidents" value={formData.accidents} onChange={handleChange} className="form-input" type="number" min="0" /></div>
+              <div className="form-group"><label className="form-label">Total Cases</label><input name="totalCases" value={formData.totalCases} onChange={handleChange} className="form-input" type="number" min="0" /></div>
+              <div className="form-group"><label className="form-label">Cases Pending</label><input name="casePending" value={formData.casePending} onChange={handleChange} className="form-input" type="number" min="0" /></div>
+            </div>
+          </div>
+          <div className="form-section"><div className="form-section-title">Route Details</div>
+            <div className="form-grid">
               <div className="form-group"><label className="form-label">Route From</label><input name="routeFrom" value={formData.routeFrom} onChange={handleChange} className="form-input" placeholder="e.g. Chennai" /></div>
               <div className="form-group"><label className="form-label">Route To</label><input name="routeTo" value={formData.routeTo} onChange={handleChange} className="form-input" placeholder="e.g. Bangalore" /></div>
             </div>
