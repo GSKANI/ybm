@@ -295,7 +295,7 @@ function DriversPage({ showToast, setAddModalOpen, setProfileModalDriver, driver
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8" strokeWidth="2"/><path d="M21 21l-4.35-4.35" strokeWidth="2"/></svg>
             <input type="text" placeholder="Search name, DL, phone…" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <button className="btn btn-ghost" onClick={() => { setSearch(''); setActiveFilter('All'); setActiveTab('All Drivers'); }}><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 4h18M7 12h10M11 20h2" strokeWidth="2"/></svg>Clear Filters</button>
+          <button className="btn btn-ghost" onClick={() => { setSearch(''); setActiveFilter('All'); setActiveTab('All Drivers'); showToast('Filters cleared'); }}><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 4h18M7 12h10M11 20h2" strokeWidth="2"/></svg>Clear Filters</button>
           <button className="btn btn-primary" onClick={() => setAddModalOpen(true)}><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2.5"/></svg>Add Driver</button>
         </div>
       </div>
@@ -370,7 +370,11 @@ function NOCPage({ showToast, setNewNocModalOpen, setViewNocData, nocRequests, d
       <div className="topbar">
         <div className="page-title">NOC Requests</div>
         <div className="topbar-actions">
-          <button className="btn btn-ghost" onClick={() => showToast('Exporting data...')}>Export</button>
+          <button className="btn btn-ghost" onClick={() => {
+            const csv = "data:text/csv;charset=utf-8,Driver ID,Company,Purpose,Status\n" + nocRequests.map(n => `"${n.driverId}","${n.requestingCompany}","${n.purpose}","${n.status}"`).join('\\n');
+            const a = document.createElement('a'); a.href = encodeURI(csv); a.download = 'noc_requests.csv'; a.click();
+            showToast('NOC data exported successfully');
+          }}>Export</button>
           <button className="btn btn-primary" onClick={() => setNewNocModalOpen(true)}><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2.5"/></svg>New NOC</button>
         </div>
       </div>
@@ -434,8 +438,16 @@ function LicensesPage({ showToast, drivers }) {
       <div className="topbar">
         <div className="page-title">License Management</div>
         <div className="topbar-actions">
-          <button className="btn btn-ghost" onClick={() => showToast('Bulk alerts sent to expiring drivers')}>Send Bulk Alerts</button>
-          <button className="btn btn-primary" onClick={() => showToast('Exporting license report…')}>Export Report</button>
+          <button className="btn btn-ghost" onClick={() => {
+            const expiring = drivers.filter(d => { const days = (new Date(d.expiry) - new Date()) / (1000*60*60*24); return days >= 0 && days <= 60; });
+            if(expiring.length > 0) showToast(`Bulk SMS reminders sent to ${expiring.length} drivers.`);
+            else showToast('No licenses expiring within 60 days.');
+          }}>Send Bulk Alerts</button>
+          <button className="btn btn-primary" onClick={() => {
+            const csv = "data:text/csv;charset=utf-8,Driver ID,License No,Category,RTO,Expiry\\n" + drivers.map(d => `"${d.id}","${d.license}","${d.category}","${d.rto}","${d.expiry}"`).join('\\n');
+            const a = document.createElement('a'); a.href = encodeURI(csv); a.download = 'license_report.csv'; a.click();
+            showToast('License report exported successfully');
+          }}>Export Report</button>
         </div>
       </div>
       <div className="content">
@@ -480,8 +492,15 @@ function SafetyPage({ showToast }) {
       <div className="topbar">
         <div className="page-title">Safety Records</div>
         <div className="topbar-actions">
-          <button className="btn btn-ghost" onClick={() => showToast('Report downloaded')}>Download Report</button>
-          <button className="btn btn-primary" onClick={() => showToast('Incident logging form opened')}>Log Incident</button>
+          <button className="btn btn-ghost" onClick={() => {
+            const csv = "data:text/csv;charset=utf-8,Driver,Incident Type,Location,Date,Severity,Status\\nVikram Singh,Minor Collision,NH-45 Chennai,Apr 11 2026,Medium,Under Review\\nKarthik Babu,Speeding Violation,OMR Sholinganallur,Apr 9 2026,High,Pending Action";
+            const a = document.createElement('a'); a.href = encodeURI(csv); a.download = 'safety_report.csv'; a.click();
+            showToast('Safety report downloaded');
+          }}>Download Report</button>
+          <button className="btn btn-primary" onClick={() => {
+            let type = prompt("Enter incident type (e.g. Speeding, Collision, Breakdown):", "");
+            if(type) showToast(`Incident logged: ${type}`);
+          }}>Log Incident</button>
         </div>
       </div>
       <div className="content">
@@ -523,8 +542,15 @@ function EmploymentPage({ showToast, drivers, setProfileModalDriver }) {
         <div className="page-title">Employment History</div>
         <div className="topbar-actions">
           <div className="search-box"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8" strokeWidth="2"/><path d="M21 21l-4.35-4.35" strokeWidth="2"/></svg><input type="text" placeholder="Search driver or company…" /></div>
-          <button className="btn btn-ghost" onClick={() => showToast('Employment report exported')}>Export</button>
-          <button className="btn btn-primary" onClick={() => showToast('Add employment record form opened')}><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2.5"/></svg>Add Record</button>
+          <button className="btn btn-ghost" onClick={() => {
+            const csv = "data:text/csv;charset=utf-8,Driver ID,Company,Period,Status\\nDRV-0087,FleetAxis Transport,Jan 2021-Present,Current\\nDRV-0087,Star Transport Co.,Apr 2017-Dec 2020,Exit\\nDRV-0042,FleetAxis Transport,Aug 2024-Present,Current";
+            const a = document.createElement('a'); a.href = encodeURI(csv); a.download = 'employment_records.csv'; a.click();
+            showToast('Employment records exported');
+          }}>Export</button>
+          <button className="btn btn-primary" onClick={() => {
+            let company = prompt("Enter employer's company name:", "");
+            if(company) showToast(`Added employment record for ${company}`);
+          }}><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2.5"/></svg>Add Record</button>
         </div>
       </div>
       <div className="content">
@@ -592,8 +618,14 @@ function ReportsPage({ showToast }) {
       <div className="topbar">
         <div className="page-title">Reports</div>
         <div className="topbar-actions">
-          <button className="btn btn-ghost" onClick={() => showToast('Report scheduled')}>Schedule Report</button>
-          <button className="btn btn-primary" onClick={() => showToast('Custom report builder opened')}>Build Custom Report</button>
+          <button className="btn btn-ghost" onClick={() => {
+            let t = prompt("Enter scheduling frequency (e.g. Daily, Weekly, Monthly):", "Weekly");
+            if(t) showToast(`Report scheduled for ${t} delivery`);
+          }}>Schedule Report</button>
+          <button className="btn btn-primary" onClick={() => {
+            let n = prompt("Enter a name for your custom report:", "Custom Fleet Analytics");
+            if(n) showToast(`Opening builder for ${n}...`);
+          }}>Build Custom Report</button>
         </div>
       </div>
       <div className="content">
@@ -648,7 +680,11 @@ function AuditPage({ showToast, auditLog }) {
         <div className="page-title">Audit Log</div>
         <div className="topbar-actions">
           <div className="search-box"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8" strokeWidth="2"/><path d="M21 21l-4.35-4.35" strokeWidth="2"/></svg><input type="text" placeholder="Search actions, users…" value={search} onChange={e=>setSearch(e.target.value)} /></div>
-          <button className="btn btn-ghost" onClick={() => showToast('Audit log exported')}>Export Log</button>
+          <button className="btn btn-ghost" onClick={() => {
+            const csv = "data:text/csv;charset=utf-8,Action,User,Module,Time\\n" + auditLog.map(l => `"${l.action}","${l.user}","${l.module}","${l.time}"`).join('\\n');
+            const a = document.createElement('a'); a.href = encodeURI(csv); a.download = 'audit_log.csv'; a.click();
+            showToast('Audit log exported successfully');
+          }}>Export Log</button>
         </div>
       </div>
       <div className="content">
