@@ -492,3 +492,56 @@ td { padding:14px 20px; font-size:13px; vertical-align:middle; font-family:var(-
   .safety-grid { grid-template-columns:repeat(2,1fr); }
   .settings-grid { grid-template-columns:1fr; }
 }
+
+@media(max-width: 900px) {
+  .sidebar { 
+    position: fixed; bottom: 0; left: 0; right: 0; top: auto; width: 100%; height: 75px; /* taller for touch */
+    flex-direction: row; border-right: none; border-top: 1px solid var(--border);
+    overflow-x: auto; overflow-y: hidden; z-index: 100;
+  }
+  .logo, .sidebar-footer, .nav-section { display: none; }
+  .nav { display: flex; flex-direction: row; gap: 8px; padding: 6px 10px; flex: 1; align-items: center; justify-content: space-around; overflow-y: hidden; overflow-x: auto; }
+  /* hide labels for some nav items to save space, or stack them */
+  .nav-item { 
+    flex-direction: column; padding: 8px 4px; font-size: 10px; 
+    justify-content: center; min-width: 65px; text-align: center; gap: 4px;
+    border-radius: 8px; 
+  }
+  .nav-item.active::before { 
+    top: 0; left: 50%; transform: translateX(-50%); 
+    width: 30px; height: 3px; border-radius: 0 0 3px 3px; 
+  }
+  .nav-item svg { margin-bottom: 2px; width: 22px; height: 22px; }
+  .nav-badge { position: absolute; top: 2px; right: 8px; font-size: 9px; padding: 1px 4px; }
+  
+  .main { margin-left: 0; padding-bottom: 85px; } /* clearance for bottom nav */
+  
+  .topbar { flex-wrap: wrap; padding: 12px 20px; }
+  .page-title { width: 100%; margin-bottom: 12px; }
+  .topbar-actions { width: 100%; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .search-box { flex: 1; min-width: 200px; }
+  .search-box input { width: 100%; }
+}
+
+@media(max-width: 600px) {
+  .stats-row, .safety-grid { grid-template-columns: 1fr; }
+  .detail-grid, .form-grid { grid-template-columns: 1fr; }
+  .grid-2, .grid-3, .grid-auto { grid-template-columns: 1fr; }
+  
+  .table-wrap { overflow-x: auto; width: 100%; display: block; }
+  table { min-width: 800px; }
+  
+  .filter-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+  .filter-chip { text-align: center; }
+  .tabs { flex-wrap: wrap; }
+  .tab { flex: 1; text-align: center; padding: 10px; }
+  
+  .emp-stats { grid-template-columns: 1fr 1fr; }
+  
+  .modal { width: 95%; max-height: 85vh; margin: 10px; }
+  .modal-top { flex-direction: column; align-items: center; text-align: center; }
+  .modal-close { position: absolute; top: 15px; right: 15px; }
+  
+  .btn { width: 100%; justify-content: center; }
+  .topbar-actions { flex-direction: column; }
+}
