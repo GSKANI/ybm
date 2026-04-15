@@ -33,6 +33,8 @@ export default function App() {
     { id: 1, action: "Driver record created — Rajesh Kumar", user: "by Admin Sharma", module: "Drivers", time: "Today 10:42 AM", color: "var(--accent)", bg: "var(--accent-dim)" }
   ]);
 
+  const [globalSearch, setGlobalSearch] = useState('');
+
   const [profileModalDriver, setProfileModalDriver] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalDriver, setEditModalDriver] = useState(null);
@@ -153,8 +155,8 @@ export default function App() {
         <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} title={sidebarOpen ? "Close sidebar" : "Open sidebar"}>
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16" strokeWidth="2.5"/></svg>
         </button>
-        {view === "dashboard" && <DashboardPage setAddModalOpen={setAddModalOpen} setView={setView} drivers={drivers} nocRequests={nocRequests} auditLog={auditLog} sidebarOpen={sidebarOpen} />}
-        {view === "drivers" && <DriversPage showToast={showToast} setAddModalOpen={setAddModalOpen} setProfileModalDriver={setProfileModalDriver} drivers={drivers} setNewNocModalOpen={setNewNocModalOpen} setEditModalDriver={setEditModalDriver} deleteDriver={deleteDriver} />}
+        {view === "dashboard" && <DashboardPage setAddModalOpen={setAddModalOpen} setView={setView} drivers={drivers} nocRequests={nocRequests} auditLog={auditLog} sidebarOpen={sidebarOpen} globalSearch={globalSearch} setGlobalSearch={setGlobalSearch} />}
+        {view === "drivers" && <DriversPage showToast={showToast} setAddModalOpen={setAddModalOpen} setProfileModalDriver={setProfileModalDriver} drivers={drivers} setNewNocModalOpen={setNewNocModalOpen} setEditModalDriver={setEditModalDriver} deleteDriver={deleteDriver} globalSearch={globalSearch} setGlobalSearch={setGlobalSearch} />}
         {view === "noc" && <NOCPage showToast={showToast} setNewNocModalOpen={setNewNocModalOpen} setViewNocData={setViewNocData} nocRequests={nocRequests} drivers={drivers} updateNocStatus={updateNocStatus} />}
         {view === "licenses" && <LicensesPage showToast={showToast} drivers={drivers} />}
         {view === "safety" && <SafetyPage showToast={showToast} />}
@@ -180,7 +182,7 @@ export default function App() {
   );
 }
 
-function DashboardPage({ setAddModalOpen, setView, drivers, nocRequests, auditLog }) {
+function DashboardPage({ setAddModalOpen, setView, drivers, nocRequests, auditLog, globalSearch, setGlobalSearch }) {
   const activeCount = drivers.filter(d => d.status === 'active').length;
   const pendingNoc = nocRequests.filter(n => n.status === 'Pending').length;
   const expringCount = drivers.filter(d => {
@@ -195,7 +197,7 @@ function DashboardPage({ setAddModalOpen, setView, drivers, nocRequests, auditLo
         <div className="topbar-actions">
           <div className="search-box">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8" strokeWidth="2"/><path d="M21 21l-4.35-4.35" strokeWidth="2"/></svg>
-            <input type="text" placeholder="Search drivers, IDs…" onChange={(e) => { if(e.target.value.length > 2) { setView('drivers'); } }} />
+            <input type="text" placeholder="Search drivers, IDs…" value={globalSearch || ''} onChange={(e) => { setGlobalSearch && setGlobalSearch(e.target.value); if(e.target.value.length > 2) { setView('drivers'); } }} />
           </div>
           <button className="btn btn-primary" onClick={() => setAddModalOpen(true)}>
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2.5"/></svg>
@@ -268,10 +270,14 @@ function DashboardPage({ setAddModalOpen, setView, drivers, nocRequests, auditLo
   );
 }
 
-function DriversPage({ showToast, setAddModalOpen, setProfileModalDriver, drivers, setNewNocModalOpen, setEditModalDriver, deleteDriver }) {
+function DriversPage({ showToast, setAddModalOpen, setProfileModalDriver, drivers, setNewNocModalOpen, setEditModalDriver, deleteDriver, globalSearch, setGlobalSearch }) {
   const [activeTab, setActiveTab] = useState('All Drivers');
   const [activeFilter, setActiveFilter] = useState('All');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(globalSearch || '');
+
+  useEffect(() => {
+    if (globalSearch !== undefined && globalSearch !== search) setSearch(globalSearch);
+  }, [globalSearch]);
 
   const filtered = drivers.filter(d => {
     if (activeTab === 'Active' && d.status !== 'active') return false;
@@ -297,9 +303,9 @@ function DriversPage({ showToast, setAddModalOpen, setProfileModalDriver, driver
         <div className="topbar-actions">
           <div className="search-box">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8" strokeWidth="2"/><path d="M21 21l-4.35-4.35" strokeWidth="2"/></svg>
-            <input type="text" placeholder="Search name, DL, phone…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input type="text" placeholder="Search name, DL, phone…" value={search} onChange={(e) => { setSearch(e.target.value); if (setGlobalSearch) setGlobalSearch(e.target.value); }} />
           </div>
-          <button className="btn btn-ghost" onClick={() => { setSearch(''); setActiveFilter('All'); setActiveTab('All Drivers'); showToast('Filters cleared'); }}><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 4h18M7 12h10M11 20h2" strokeWidth="2"/></svg>Clear Filters</button>
+          <button className="btn btn-ghost" onClick={() => { setSearch(''); if (setGlobalSearch) setGlobalSearch(''); setActiveFilter('All'); setActiveTab('All Drivers'); showToast('Filters cleared'); }}><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 4h18M7 12h10M11 20h2" strokeWidth="2"/></svg>Clear Filters</button>
           <button className="btn btn-primary" onClick={() => setAddModalOpen(true)}><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 5v14M5 12h14" strokeWidth="2.5"/></svg>Add Driver</button>
         </div>
       </div>
@@ -329,7 +335,16 @@ function DriversPage({ showToast, setAddModalOpen, setProfileModalDriver, driver
 
                 return (
                   <tr key={d.id} onClick={() => setProfileModalDriver(d)}>
-                    <td><div className="driver-cell"><div className="driver-avatar" style={{background:d.bg,color:d.fg}}>{d.initials}</div><div><div className="driver-name">{d.name}</div><div className="driver-id">{d.id}</div></div></div></td>
+                    <td>
+                      <div className="driver-cell">
+                        {d.photo ? (
+                          <img src={d.photo} alt={d.name} className="driver-avatar-img" />
+                        ) : (
+                          <div className="driver-avatar" style={{background:d.bg,color:d.fg}}>{d.initials}</div>
+                        )}
+                        <div><div className="driver-name">{d.name}</div><div className="driver-id">{d.id}</div></div>
+                      </div>
+                    </td>
                     <td className="mono" style={{fontSize:12}}>{d.license}</td>
                     <td><span className={d.category.includes('HMV') ? "badge badge-blue" : "badge badge-green"}>{d.category}</span></td>
                     <td>{d.exp}</td>
@@ -398,7 +413,16 @@ function NOCPage({ showToast, setNewNocModalOpen, setViewNocData, nocRequests, d
                 const badgeClass = noc.status === 'Approved' ? 'badge-green' : noc.status === 'Pending' ? 'badge-amber' : 'badge-red';
                 return (
                   <tr key={noc.id}>
-                    <td><div className="driver-cell"><div className="driver-avatar" style={{background:noc.driver.bg,color:noc.driver.fg}}>{noc.driver.initials}</div><div><div className="driver-name">{noc.driver.name}</div><div className="driver-id">{noc.driver.id}</div></div></div></td>
+                    <td>
+                      <div className="driver-cell">
+                        {noc.driver.photo ? (
+                          <img src={noc.driver.photo} alt={noc.driver.name} className="driver-avatar-img" />
+                        ) : (
+                          <div className="driver-avatar" style={{background:noc.driver.bg,color:noc.driver.fg}}>{noc.driver.initials}</div>
+                        )}
+                        <div><div className="driver-name">{noc.driver.name}</div><div className="driver-id">{noc.driver.id}</div></div>
+                      </div>
+                    </td>
                     <td>{noc.requestingCompany}</td>
                     <td>{noc.purpose}</td>
                     <td className="mono" style={{fontSize:12}}>{noc.submitted}</td>
@@ -471,7 +495,16 @@ function LicensesPage({ showToast, drivers }) {
                 else if (days < 60) { st = 'Expiring soon'; cls = 'badge-amber'; }
                 return (
                   <tr key={d.id}>
-                    <td><div className="driver-cell"><div className="driver-avatar" style={{background:d.bg,color:d.fg}}>{d.initials}</div><div><div className="driver-name">{d.name}</div><div className="driver-id">{d.id}</div></div></div></td>
+                    <td>
+                      <div className="driver-cell">
+                        {d.photo ? (
+                          <img src={d.photo} alt={d.name} className="driver-avatar-img" />
+                        ) : (
+                          <div className="driver-avatar" style={{background:d.bg,color:d.fg}}>{d.initials}</div>
+                        )}
+                        <div><div className="driver-name">{d.name}</div><div className="driver-id">{d.id}</div></div>
+                      </div>
+                    </td>
                     <td className="mono" style={{fontSize:12}}>{d.license}</td>
                     <td><span className={d.category.includes('HMV') ? "badge badge-blue" : "badge badge-green"}>{d.category}</span></td>
                     <td>{d.rto}</td>
@@ -819,7 +852,11 @@ function ProfileModal({ driver, onClose }) {
     <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-top">
-          <div className="profile-avatar" style={{background:driver.bg, color:driver.fg}}>{driver.initials}</div>
+          {driver.photo ? (
+            <img src={driver.photo} alt={driver.name} className="profile-avatar-img" />
+          ) : (
+            <div className="profile-avatar" style={{background:driver.bg, color:driver.fg}}>{driver.initials}</div>
+          )}
           <div style={{flex:1}}>
             <div className="driver-profile-name">{driver.name}</div>
             <div className="driver-profile-meta">{driver.id} · {driver.status.charAt(0).toUpperCase() + driver.status.slice(1)} Driver</div>
@@ -880,7 +917,7 @@ function ProfileModal({ driver, onClose }) {
 }
 
 function AddDriverModal({ isOpen, onClose, showToast, addDriver, driversLength }) {
-  const [formData, setFormData] = useState({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', accidents: 0, totalCases: 0, casePending: 0, routeFrom: '', routeTo: '' });
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', photo: '', accidents: 0, totalCases: 0, casePending: 0, routeFrom: '', routeTo: '' });
   
   if (!isOpen) return null;
 
@@ -898,6 +935,7 @@ function AddDriverModal({ isOpen, onClose, showToast, addDriver, driversLength }
       license: formData.license, category: formData.cat.split(' ')[0], exp: formData.exp ? `${formData.exp} yrs` : '0 yrs',
       status: 'active', score: 100, noc: 'none', dob: formData.dob || '1990-01-01', phone: formData.phone || 'N/A',
       expiry: formData.expiry || '2030-01-01', rto: formData.rto || 'TBA', cat: formData.cat, currExp: '0y 0m', km: formData.km ? `${formData.km} km` : '0 km',
+      photo: formData.photo || '',
       accidents: parseInt(formData.accidents) || 0,
       totalCases: parseInt(formData.totalCases) || 0,
       casePending: parseInt(formData.casePending) || 0,
@@ -924,6 +962,7 @@ function AddDriverModal({ isOpen, onClose, showToast, addDriver, driversLength }
             <div className="form-group"><label className="form-label">Last Name</label><input name="lastName" value={formData.lastName} onChange={handleChange} className="form-input" /></div>
             <div className="form-group"><label className="form-label">Date of Birth</label><input name="dob" value={formData.dob} onChange={handleChange} className="form-input" type="date" /></div>
             <div className="form-group"><label className="form-label">Phone Number</label><input name="phone" value={formData.phone} onChange={handleChange} className="form-input" /></div>
+            <div className="form-group"><label className="form-label">Photo URL</label><input name="photo" value={formData.photo} onChange={handleChange} className="form-input" placeholder="https://example.com/photo.jpg" /></div>
             <div className="form-group full"><label className="form-label">Address</label><input name="address" value={formData.address} onChange={handleChange} className="form-input" /></div>
           </div>
           <div className="form-section"><div className="form-section-title">License Details</div>
@@ -964,7 +1003,7 @@ function AddDriverModal({ isOpen, onClose, showToast, addDriver, driversLength }
 }
 
 function EditDriverModal({ driver, onClose, showToast, updateDriver }) {
-  const [formData, setFormData] = useState({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', accidents: 0, totalCases: 0, casePending: 0, routeFrom: '', routeTo: '' });
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', dob: '', phone: '', address: '', license: '', cat: 'LMV', rto: '', expiry: '', exp: '', km: '', company: '', photo: '', accidents: 0, totalCases: 0, casePending: 0, routeFrom: '', routeTo: '' });
 
   useEffect(() => {
     if (driver) {
@@ -982,6 +1021,7 @@ function EditDriverModal({ driver, onClose, showToast, updateDriver }) {
         exp: parseInt(driver.exp) || 0,
         km: parseInt(driver.km?.replace(/[^\d]/g, '')) || 0,
         company: '',
+        photo: driver.photo || '',
         accidents: driver.accidents || 0,
         totalCases: driver.totalCases || 0,
         casePending: driver.casePending || 0,
@@ -1003,6 +1043,7 @@ function EditDriverModal({ driver, onClose, showToast, updateDriver }) {
       license: formData.license, category: formData.cat.split(' ')[0], exp: formData.exp ? `${formData.exp} yrs` : '0 yrs',
       dob: formData.dob || '1990-01-01', phone: formData.phone || 'N/A',
       expiry: formData.expiry || '2030-01-01', rto: formData.rto || 'TBA', cat: formData.cat, km: formData.km ? `${formData.km} km` : '0 km',
+      photo: formData.photo || driver.photo || '',
       accidents: parseInt(formData.accidents) || 0,
       totalCases: parseInt(formData.totalCases) || 0,
       casePending: parseInt(formData.casePending) || 0,
@@ -1028,6 +1069,7 @@ function EditDriverModal({ driver, onClose, showToast, updateDriver }) {
             <div className="form-group"><label className="form-label">Last Name</label><input name="lastName" value={formData.lastName} onChange={handleChange} className="form-input" /></div>
             <div className="form-group"><label className="form-label">Date of Birth</label><input name="dob" value={formData.dob} onChange={handleChange} className="form-input" type="date" /></div>
             <div className="form-group"><label className="form-label">Phone Number</label><input name="phone" value={formData.phone} onChange={handleChange} className="form-input" /></div>
+            <div className="form-group"><label className="form-label">Photo URL</label><input name="photo" value={formData.photo} onChange={handleChange} className="form-input" placeholder="https://example.com/photo.jpg" /></div>
             <div className="form-group full"><label className="form-label">Address</label><input name="address" value={formData.address} onChange={handleChange} className="form-input" /></div>
           </div>
           <div className="form-section"><div className="form-section-title">License Details</div>
@@ -1120,7 +1162,11 @@ function ViewNOCModal({ data, onClose, showToast, updateNocStatus }) {
     <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal" style={{maxWidth: 600}}>
         <div className="modal-top">
-          <div className="profile-avatar" style={{background:data.driver.bg, color:data.driver.fg}}>{data.driver.initials}</div>
+          {data.driver.photo ? (
+            <img src={data.driver.photo} alt={data.driver.name} className="profile-avatar-img" />
+          ) : (
+            <div className="profile-avatar" style={{background:data.driver.bg, color:data.driver.fg}}>{data.driver.initials}</div>
+          )}
           <div style={{flex:1}}>
             <div className="driver-profile-name">NOC Request Details</div>
             <div className="driver-profile-meta">{data.id} · {data.driver.name}</div>
